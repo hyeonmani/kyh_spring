@@ -1,4 +1,4 @@
-package hello.typeconvert;
+package hello.typeconvert.convert;
 
 import hello.typeconvert.convert.IpPortToStringConvert;
 import hello.typeconvert.type.IpPort;

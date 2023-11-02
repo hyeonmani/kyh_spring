@@ -1,0 +1,56 @@
+1. 그리드의 Amt_deposit 컬럼이 '0' 이면 해당 라인 입금처리 수행하지 않습니다.
+
+
+2. 순번 최대값에서 1더한값을 생성합니다.
+SELECT	NVL(MAX(A.SQ), 0) + 1 SQ
+FROM	NP_ADVEXT_INFO A
+WHERE	A.COMPANY_CD = #{P_COMPANY_CD} 
+	AND	A.TMN_PLAN_DT = #{P_TMN_PLAN_DT}
+	AND A.CTR_CD = #{P_CTR_CD}
+	AND A.TMN_CD = #{P_TMN_CD}
+
+
+3. 위에서 만든 순번과 화면에서 넘겨받은 그리드 데이터를 insert 합니다.
+INSERT INTO NP_ADVEXT_INFO
+(	COMPANY_CD, TMN_PLAN_DT, CTR_CD, TMN_CD, SQ,
+	MEDIA_CD, AM, GEN_SLIP_NO, YM, TMN_DT,
+	DC,
+	INSERT_ID, INSERT_DTS, INSERT_MCADDR_NM, INSERT_IP
+)
+VALUES 
+(	#{P_COMPANY_CD}, #{P_TMN_PLAN_DT}, #{P_CTR_CD}, #{P_TMN_CD}, #{P_SQ},
+	#{P_MEDIA_CD}, #{P_AM}, #{P_GEN_SLIP_NO}, #{P_YM}, #{P_TMN_DT},
+	#{P_DC},
+	#{P_INSERT_ID}, SYSDATE, #{P_INSERT_MCADDR_NM}, #{P_INSERT_IP}
+)
+
+
+4. 아래 쿼리로 AM 합계를 가져옵니다.
+SELECT	NVL(SUM(AM), 0) AM
+FROM	NP_ADVEXT_INFO
+WHERE	COMPANY_CD = #{P_COMPANY_CD}
+	AND GEN_SLIP_NO = #{P_GEN_SLIP_NO}
+	AND CTR_CD = #{P_CTR_CD}
+	AND TMN_CD = #{P_TMN_CD}
+	AND	MEDIA_CD = #{P_MEDIA_CD}
+
+
+5. 위에서 가져온 AM합계 와 그리드 데이터로 update 합니다.
+UPDATE NP_ADVISS_INFO
+SET TMN_AM = #{P_AM_SUM},
+	REMAIN_AM = NVL(IN_AM, 0) - NVL(#{P_AM_SUM}, 0),
+	UPDATE_ID = #{P_UPDATE_ID},
+	UPDATE_DTS = SYSDATE,
+	UPDATE_IP = #{P_UPDATE_IP}
+WHERE	COMPANY_CD = #{P_COMPANY_CD}
+AND GEN_SLIP_NO = #{P_GEN_SLIP_NO}
+AND CTR_CD = #{P_CTR_CD}
+AND	MEDIA_CD = #{P_MEDIA_CD}
+
+
+
+
+
+입금처리 로직 이상입니다
+
+
