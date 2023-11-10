@@ -3,17 +3,24 @@ package hello.jdbc.repository;
 import hello.jdbc.connection.DbConnectionUtil;
 import hello.jdbc.domain.Member;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.support.JdbcUtils;
 
-import java.net.PortUnreachableException;
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.NoSuchElementException;
 
 
 /**
- * JDBC - DriverManager 사용
+ * JDBC - DataSource, JdbcUtils 사용
  */
 @Slf4j
-public class MemberRepositoryVO {
+public class MemberRepositoryV1 {
+
+    private final DataSource dataSource;
+
+    public MemberRepositoryV1(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     public Member save(Member member) throws SQLException {
         String sql = "insert into member(member_id, money) values (? ,?)";
@@ -115,35 +122,16 @@ public class MemberRepositoryVO {
 
     private void close(Connection conn, Statement stmt, ResultSet rs) {
 
-        if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLException e) {
-                log.info("error", e);
-            }
-        }
-
-        // 종료는 시작 역순으로
-        if (stmt != null) {
-            try {
-                stmt.close();
-            } catch (SQLException e) {
-                log.info("error", e);
-            }
-        }
-
-        if (conn != null) {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                log.info("error", e);
-            }
-        }
+        JdbcUtils.closeConnection(conn);
+        JdbcUtils.closeStatement(stmt);
+        JdbcUtils.closeResultSet(rs);
 
     }
 
     private Connection getConnection() throws SQLException {
-        return DbConnectionUtil.getConnection();
+        Connection conn = dataSource.getConnection();
+        log.info("get connection={}, class={}", conn, conn.getClass());
+        return conn;
     }
 
 }
