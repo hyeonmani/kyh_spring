@@ -13,12 +13,14 @@ public class OrderControllerInterfaceProxy implements OrderControllerV1 {
 
     @Override
     public String request(String itemId) {
+
         TraceStatus status = null;
         try {
             status = logTrace.begin("OrderController.request()");
-            String returnResult = target.request(itemId);
+            //target 호출
+            String result = target.request(itemId);
             logTrace.end(status);
-            return returnResult;
+            return result;
         } catch (Exception e) {
             logTrace.exception(status, e);
             throw e;

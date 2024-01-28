@@ -14,9 +14,11 @@ public class OrderServiceInterfaceProxy implements OrderServiceV1 {
 
     @Override
     public void orderItem(String itemId) {
+
         TraceStatus status = null;
         try {
             status = logTrace.begin("OrderService.orderItem()");
+            //target 호출
             target.orderItem(itemId);
             logTrace.end(status);
         } catch (Exception e) {
